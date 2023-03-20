@@ -2,74 +2,69 @@ package calc;
 
 import calc.operations.*;
 
-import java.util.Scanner;
-
 /**
  * Калькулятор
  */
 public class Calculator {
+    public static final int ERROR_OK = 0;
+    public static final int ERROR_OP_NOT_SUP = -1;
+    public static final int ERROR_ZERO_DIV = -2;
 
+    private double val = 0.0;
     /**
      * Метод выполняет операции калькулятора (сложение, вычитание, деление или
      * умножение) над дробными числами.
      * @param a Первое дробное число
      * @param b Второе дробное число
      * @param strOp Операция выполняемая над дробными числами.
+     * @return Код ошибки. Код == 0 - OK, Код < 0 - Ошибка.
      */
-    private void evaluate(double a, double b, String strOp) {
+    public int evaluate(double a, double b, String strOp) {
         if (1 != strOp.length()) {
-            System.err.println("Операция \"" + strOp + "\" не поддерживается!");
-            return;
+            return ERROR_OP_NOT_SUP;
         }
 
-        double res;
         Operation op;
         switch(strOp.charAt(0)) {
             case '+':
                 op = new Plus();
-                res = op.evaluate(a, b);
-                break;
+                val = op.evaluate(a, b);
+                return ERROR_OK;
 
             case '-':
                 op = new Minus();
-                res = op.evaluate(a, b);
-                break;
+                val = op.evaluate(a, b);
+                return ERROR_OK;
 
             case '*':
                 op = new Mult();
-                res = op.evaluate(a, b);
-                break;
+                val = op.evaluate(a, b);
+                return ERROR_OK;
 
             case '/':
                 op = new Div();
-                res = op.evaluate(a, b);
-                if (Double.isNaN(res)) {
-                    System.err.println("Делитель не должен быть равен нулю!");
-                    return;
+                val = op.evaluate(a, b);
+                if (Double.isNaN(val)) {
+                    return ERROR_ZERO_DIV;
                 }
-                break;
-
-            default:
-                System.err.println("Операция \"" + strOp + "\" не поддерживается!");
-                return ;
+                return ERROR_OK;
         }
 
-        System.out.printf("Результат операции = %.4f", res);
+        return ERROR_OP_NOT_SUP;
     }
 
-    public void evaluate() {
-        Scanner in = new Scanner(System.in);
-        System.out.println("Необходимо ввести два дробных числа и знак операции (‘+’, ‘-’, ‘*’ или ‘/’).");
+    public String getErrorText(int errorCode) {
+        switch(errorCode) {
+            case ERROR_OK:         return "Всё хорошо!";
+            case ERROR_OP_NOT_SUP: return "Операция не поддерживается!";
+            case ERROR_ZERO_DIV:   return "Делитель не должен быть равен нулю!";
+        }
 
-        System.out.print("Введите первое число:   ");
-        double a = in.nextDouble();
-
-        System.out.print("Введите второе число:   ");
-        double b = in.nextDouble();
-
-        System.out.print("Введите знак операции:  ");
-        String op = in.next();
-
-        evaluate(a, b, op);
+        return "Описание ошибки с кодом \"" + errorCode + "\" отсутсвует.";
     }
+
+    public double getValue() {
+        return val;
+    }
+
 }
